@@ -1,6 +1,6 @@
 <div class="cell markdown">
 
-## Distracted-Driver-Detection
+# Distracted Driver Detection
 
 <img src="./supp/front_page.png" style="width:250;height:250;">
 
