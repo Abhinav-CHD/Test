@@ -2,7 +2,7 @@
 
 # Distracted Driver Detection
 
-<img src="./supp/front_page.png" style="width:250;height:250;">
+<!-- <img src="./supp/front_page.png" style="width:250;height:250;"> -->
 
 </div>
 
@@ -20,6 +20,7 @@ the phone, makeup, reaching behind, etc). Your goal is to predict the
 likelihood of what the driver is doing in each picture.
 
 The 10 classes to predict are as follows, <br> <br> <table> <tr> <td>
+
 <li>c0: safe driving</li> <br> <li>c1: texting - right</li> <br> <li>c2:
 talking on the phone - right</li> <br> <li>c3: texting - left</li> <br>
 <li>c4: talking on the phone - left</li> <br> <li>c5: operating the
@@ -42,6 +43,7 @@ radio</li> <br> <li>c6: drinking</li> <br> <li>c7: reaching behind</li>
 
 Using a 50-layer Residual Network (with the following parameters) the
 following scores (losses) were obtained. <table> <li>10 Epochs</li>
+
 <li>32 Batch Size</li> <li>Adam Optimizer</li> <li>Glorot Uniform
 Initializer</li> <tr> <td> **Training Loss** </td> <td> 0.93 </td> </tr>
 <tr> <td> **Validation Loss** </td> <td> 3.79 </td> </tr> <tr> <td>
@@ -70,14 +72,14 @@ functions that we'll use throughout the notebook.
 
 <div class="cell code">
 
-``` python
+```python
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from keras import layers
-from keras.layers import (Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, 
+from keras.layers import (Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization,
                           Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D)
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.models import Model, load_model, save_model
@@ -109,7 +111,7 @@ from PIL import Image
 
 <div class="cell code" data-execution_count="2">
 
-``` python
+```python
 def PlotClassFrequency(class_counts):
     plt.figure(figsize=(15,4))
     plt.bar(class_counts.index,class_counts)
@@ -124,33 +126,33 @@ def DescribeImageData(data):
     print("Lowest image count: {}. At: {}".format(data.min(), data.idxmin()))
     print("Highest image count: {}. At: {}".format(data.max(), data.idxmax()))
     print(data.describe())
-    
+
 def CreateImgArray(height, width, channel, data, folder, save_labels = True):
     """
     Writes image files found in 'imgs/train' to array of shape
     [examples, height, width, channel]
-    
+
     Arguments:
     height -- integer, height in pixels
     width --  integer, width in pixels
     channel -- integer, number of channels (or dimensions) for image (3 for RGB)
     data -- dataframe, containing associated image properties, such as:
             subject -> string, alpha-numeric code of participant in image
-            classname -> string, the class name i.e. 'c0', 'c1', etc. 
+            classname -> string, the class name i.e. 'c0', 'c1', etc.
             img -> string, image name
     folder -- string, either 'test' or 'train' folder containing the images
-    save_labels -- bool, True if labels should be saved, or False (just save 'X' images array).  
+    save_labels -- bool, True if labels should be saved, or False (just save 'X' images array).
                    Note: only applies if using train folder
-            
+
     Returns:
     .npy file -- file, contains the associated conversion of images to numerical values for processing
     """
-    
+
     num_examples = len(data)
     X = np.zeros((num_examples,height,width,channel))
     if (folder == 'train') & (save_labels == True):
         Y = np.zeros(num_examples)
-    
+
     for m in range(num_examples):
         current_img = data.img[m]
         img_path = 'imgs/' + folder + '/' + current_img
@@ -160,11 +162,11 @@ def CreateImgArray(height, width, channel, data, folder, save_labels = True):
         X[m] = x
         if (folder == 'train') & (save_labels == True):
             Y[m] = data.loc[data['img'] == current_img, 'classname'].iloc[0]
-        
+
     np.save('X_'+ folder + '_' + str(height) + '_' + str(width), X)
     if (folder == 'train') & (save_labels == True):
         np.save('Y_'+ folder + '_' + str(height) + '_' + str(width), Y)
-        
+
 def Rescale(X):
     return (1/(2*np.max(X))) * X + 0.5
 
@@ -175,7 +177,7 @@ def PrintImage(X_scaled, index, Y = None):
             print ("y = " + str(np.squeeze(Y[index])))
         else:
             print("y = " + str(np.argmax(Y[index])))
-            
+
 def LOGO(X, Y, group, model_name, input_shape, classes, init, optimizer, metrics, epochs, batch_size):
     logo = LeaveOneGroupOut()
     logo.get_n_splits(X, Y, group);
@@ -199,7 +201,7 @@ def LOGO(X, Y, group, model_name, input_shape, classes, init, optimizer, metrics
         K.clear_session()
         # Update counter
         i += 1
-        
+
     return pd.DataFrame(cvscores, index = subject_id, columns=['Train_loss', 'Train_acc','Test_loss', 'Test_acc'])
 ```
 
@@ -213,21 +215,21 @@ def LOGO(X, Y, group, model_name, input_shape, classes, init, optimizer, metrics
 
 <div class="cell markdown">
 
-Let's begin by loading the provided dataset 'driver\_imgs\_list' doing a
+Let's begin by loading the provided dataset 'driver_imgs_list' doing a
 quick analysis.
 
 </div>
 
 <div class="cell code" data-execution_count="3">
 
-``` python
+```python
 driver_imgs_df = pd.read_csv('driver_imgs_list/driver_imgs_list.csv')
 driver_imgs_df.head()
 ```
 
 <div class="output execute_result" data-execution_count="3">
 
-``` 
+```
   subject classname            img
 0    p002        c0  img_44733.jpg
 1    p002        c0  img_72999.jpg
@@ -249,7 +251,7 @@ dataframe. Looks like the training set has 22,424 images.
 
 <div class="cell code" data-execution_count="4">
 
-``` python
+```python
 driver_imgs_df.shape
 ```
 
@@ -270,7 +272,7 @@ low number of images.
 
 <div class="cell code" data-execution_count="5">
 
-``` python
+```python
 class_counts = (driver_imgs_df.classname).value_counts()
 PlotClassFrequency(class_counts)
 DescribeImageData(class_counts)
@@ -305,7 +307,7 @@ DescribeImageData(class_counts)
 
 Additionally, we can plot the number of images per test subject. It
 would be much more helpful to plot the number of images belonging to
-each class *per subject*. We could then ensure that the distribution is
+each class _per subject_. We could then ensure that the distribution is
 somewhat uniform. We did not show this here, and instead just plotted
 number of images per subject.
 
@@ -313,7 +315,7 @@ number of images per subject.
 
 <div class="cell code" data-execution_count="6">
 
-``` python
+```python
 subject_counts = (driver_imgs_df.subject).value_counts()
 plt.figure(figsize=(15,4))
 plt.bar(subject_counts.index,subject_counts)
@@ -357,7 +359,7 @@ Furthermore, we can check if there are any null image examples.
 
 <div class="cell code" data-execution_count="7">
 
-``` python
+```python
 pd.isnull(driver_imgs_df).sum()
 ```
 
@@ -388,7 +390,7 @@ attributes.
 
 <div class="cell code" data-execution_count="8">
 
-``` python
+```python
 np.random.seed(0)
 myarray = np.random.permutation(driver_imgs_df)
 driver_imgs_df = pd.DataFrame(data = myarray, columns=['subject', 'classname', 'img'])
@@ -405,7 +407,7 @@ assign the strings to their respective integers.
 
 <div class="cell code" data-execution_count="9">
 
-``` python
+```python
 d = {'c0': 0, 'c1': 1, 'c2': 2, 'c3': 3, 'c4': 4, 'c5': 5, 'c6': 6, 'c7': 7, 'c8': 8, 'c9': 9}
 driver_imgs_df.classname = driver_imgs_df.classname.map(d)
 ```
@@ -429,7 +431,7 @@ function saves the array as a .npy file.
 
 <div class="cell code" data-execution_count="39">
 
-``` python
+```python
 CreateImgArray(64, 64, 3, driver_imgs_df, 'train')
 ```
 
@@ -445,7 +447,7 @@ executed every time.
 
 <div class="cell code" data-execution_count="10" data-scrolled="true">
 
-``` python
+```python
 X = np.load('X_train_64_64.npy')
 X.shape
 ```
@@ -460,7 +462,7 @@ X.shape
 
 <div class="cell code" data-execution_count="11">
 
-``` python
+```python
 Y = np.load('Y_train_64_64.npy')
 Y.shape
 ```
@@ -483,13 +485,13 @@ contains all the target labels.
 
 <div class="cell code" data-execution_count="12">
 
-``` python
+```python
 (X == 0).sum()
 ```
 
 <div class="output execute_result" data-execution_count="12">
 
-``` 
+```
 0
 ```
 
@@ -499,7 +501,7 @@ contains all the target labels.
 
 <div class="cell code" data-execution_count="13">
 
-``` python
+```python
 PlotClassFrequency(pd.DataFrame(Y)[0].value_counts())
 ```
 
@@ -520,7 +522,7 @@ a sanity check. Re-scaling the images (between 0 and 1):
 
 <div class="cell code" data-execution_count="14">
 
-``` python
+```python
 X_scaled = Rescale(X)
 ```
 
@@ -528,7 +530,7 @@ X_scaled = Rescale(X)
 
 <div class="cell code" data-execution_count="15">
 
-``` python
+```python
 PrintImage(X_scaled, 2, Y = Y.reshape(-1,1))
 ```
 
@@ -563,46 +565,46 @@ be the case shown above.
 
 We'll use the popular Residual Net with 50 layers. Residual networks are
 essential to preventing vanishing gradients when using a rather 'deep'
-network (many layers). The identity\_block and convolutional\_block are
+network (many layers). The identity_block and convolutional_block are
 defined below.
 
 </div>
 
 <div class="cell code" data-execution_count="16">
 
-``` python
+```python
 def identity_block(X, f, filters, stage, block, init):
     """
     Implementation of the identity block as defined in Figure 3
-    
+
     Arguments:
     X -- input tensor of shape (m, n_H_prev, n_W_prev, n_C_prev)
     f -- integer, specifying the shape of the middle CONV's window for the main path
     filters -- python list of integers, defining the number of filters in the CONV layers of the main path
     stage -- integer, used to name the layers, depending on their position in the network
     block -- string/character, used to name the layers, depending on their position in the network
-    
+
     Returns:
     X -- output of the identity block, tensor of shape (n_H, n_W, n_C)
     """
-    
+
     # defining name basis
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
-    
+
     # Retrieve Filters
     F1, F2, F3 = filters
-    
-    # Save the input value. You'll need this later to add back to the main path. 
+
+    # Save the input value. You'll need this later to add back to the main path.
     X_shortcut = X
-    
+
     # First component of main path
     X = Conv2D(filters = F1, kernel_size = (1, 1), strides = (1,1), padding = 'valid', name = conv_name_base + '2a', kernel_initializer = init)(X)
     X = BatchNormalization(axis = 3, name = bn_name_base + '2a')(X)
     X = Activation('relu')(X)
-    
+
     ### START CODE HERE ###
-    
+
     # Second component of main path (≈3 lines)
     X = Conv2D(filters = F2, kernel_size = (f, f), strides = (1,1), padding = 'same', name = conv_name_base + '2b', kernel_initializer = init)(X)
     X = BatchNormalization(axis = 3, name = bn_name_base + '2b')(X)
@@ -615,9 +617,9 @@ def identity_block(X, f, filters, stage, block, init):
     # Final step: Add shortcut value to main path, and pass it through a RELU activation (≈2 lines)
     X = Add()([X,X_shortcut])
     X = Activation('relu')(X)
-    
+
     ### END CODE HERE ###
-    
+
     return X
 ```
 
@@ -625,11 +627,11 @@ def identity_block(X, f, filters, stage, block, init):
 
 <div class="cell code" data-execution_count="17">
 
-``` python
+```python
 def convolutional_block(X, f, filters, stage, block, init, s = 2):
     """
     Implementation of the convolutional block as defined in Figure 4
-    
+
     Arguments:
     X -- input tensor of shape (m, n_H_prev, n_W_prev, n_C_prev)
     f -- integer, specifying the shape of the middle CONV's window for the main path
@@ -637,28 +639,28 @@ def convolutional_block(X, f, filters, stage, block, init, s = 2):
     stage -- integer, used to name the layers, depending on their position in the network
     block -- string/character, used to name the layers, depending on their position in the network
     s -- Integer, specifying the stride to be used
-    
+
     Returns:
     X -- output of the convolutional block, tensor of shape (n_H, n_W, n_C)
     """
-    
+
     # defining name basis
     conv_name_base = 'res' + str(stage) + block + '_branch'
     bn_name_base = 'bn' + str(stage) + block + '_branch'
-    
+
     # Retrieve Filters
     F1, F2, F3 = filters
-    
+
     # Save the input value
     X_shortcut = X
 
 
     ##### MAIN PATH #####
-    # First component of main path 
+    # First component of main path
     X = Conv2D(F1, (1, 1), strides = (s,s), name = conv_name_base + '2a', kernel_initializer = init)(X)
     X = BatchNormalization(axis = 3, name = bn_name_base + '2a')(X)
     X = Activation('relu')(X)
-    
+
     ### START CODE HERE ###
 
     # Second component of main path (≈3 lines)
@@ -677,9 +679,9 @@ def convolutional_block(X, f, filters, stage, block, init, s = 2):
     # Final step: Add shortcut value to main path, and pass it through a RELU activation (≈2 lines)
     X = Add()([X,X_shortcut])
     X = Activation('relu')(X)
-    
+
     ### END CODE HERE ###
-    
+
     return X
 ```
 
@@ -694,7 +696,7 @@ shown below.
 
 <div class="cell code" data-execution_count="18">
 
-``` python
+```python
 def ResNet50(input_shape = (64, 64, 3), classes = 10, init = glorot_uniform(seed=0)):
     """
     Implementation of the popular ResNet50 the following architecture:
@@ -708,14 +710,14 @@ def ResNet50(input_shape = (64, 64, 3), classes = 10, init = glorot_uniform(seed
     Returns:
     model -- a Model() instance in Keras
     """
-    
+
     # Define the input as a tensor with shape input_shape
     X_input = Input(input_shape)
 
-    
+
     # Zero-Padding
     X = ZeroPadding2D((3, 3))(X_input)
-    
+
     # Stage 1
     X = Conv2D(64, (7, 7), strides = (2, 2), name = 'conv1', kernel_initializer = init)(X)
     X = BatchNormalization(axis = 3, name = 'bn_conv1')(X)
@@ -750,16 +752,16 @@ def ResNet50(input_shape = (64, 64, 3), classes = 10, init = glorot_uniform(seed
 
     # AVGPOOL (≈1 line). Use "X = AveragePooling2D(...)(X)"
     X = AveragePooling2D(pool_size=(2, 2), name = 'avg_pool')(X)
-    
+
     ### END CODE HERE ###
 
     # output layer
     X = Flatten()(X)
     X = Dense(classes, activation='softmax', name='fc' + str(classes), kernel_initializer = init)(X)
-    
+
     # Create model
     model = Model(inputs = X_input, outputs = X, name='ResNet50')
-    
+
     return model
 ```
 
@@ -781,7 +783,7 @@ first CNN model.
 
 <div class="cell code" data-execution_count="19">
 
-``` python
+```python
 # Normalize image vectors
 X_train = X/255
 
@@ -820,9 +822,9 @@ scores of the training/dev sets (for each group/driver).
 
 <div class="cell code" data-execution_count="25">
 
-``` python
+```python
 scores = LOGO(X_train, Y_train, group = driver_imgs_df['subject'],
-              model_name = ResNet50, input_shape = (64, 64, 3), classes = 10, 
+              model_name = ResNet50, input_shape = (64, 64, 3), classes = 10,
               init = glorot_uniform(seed=0), optimizer = 'adam', metrics = 'accuracy',
               epochs = 2, batch_size = 32)
 ```
@@ -838,7 +840,7 @@ accuracy at 8.07%, and 'p002' had the highest accuracy at 71.52%.
 
 <div class="cell code" data-execution_count="41">
 
-``` python
+```python
 plt.figure(figsize=(15,4))
 plt.bar(scores.index, scores.loc[:,'Test_acc'].sort_values(ascending=False))
 plt.yticks(np.arange(0, 110, 10.0))
@@ -861,13 +863,13 @@ Calling 'describe' method, we can note some useful statistics.
 
 <div class="cell code" data-execution_count="42">
 
-``` python
+```python
 scores.describe()
 ```
 
 <div class="output execute_result" data-execution_count="42">
 
-``` 
+```
        Train_loss  Train_acc  Test_loss   Test_acc
 count   26.000000  26.000000  26.000000  26.000000
 mean     4.118791  27.908272   5.293537  21.190364
@@ -891,7 +893,7 @@ And finally, let's print out the train/dev scores.
 
 <div class="cell code" data-execution_count="65">
 
-``` python
+```python
 print("Train acc: {:.2f}. Dev. acc: {:.2f}".format(scores['Train_acc'].mean(), scores['Test_acc'].mean()))
 print("Train loss: {:.2f}. Dev. loss: {:.2f}".format(scores['Train_loss'].mean(), scores['Test_loss'].mean()))
 ```
@@ -918,9 +920,9 @@ if the train/dev accuracies increase (loss decreases).
 
 <div class="cell code" data-execution_count="66">
 
-``` python
+```python
 scores = LOGO(X_train, Y_train, group = driver_imgs_df['subject'],
-              model_name = ResNet50, input_shape = (64, 64, 3), classes = 10, 
+              model_name = ResNet50, input_shape = (64, 64, 3), classes = 10,
               init = glorot_uniform(seed=0), optimizer = 'adam', metrics = 'accuracy',
               epochs = 5, batch_size = 32)
 ```
@@ -929,7 +931,7 @@ scores = LOGO(X_train, Y_train, group = driver_imgs_df['subject'],
 
 <div class="cell code" data-execution_count="67">
 
-``` python
+```python
 print("Train acc: {:.2f}. Dev. acc: {:.2f}".format(scores['Train_acc'].mean(), scores['Test_acc'].mean()))
 print("Train loss: {:.2f}. Dev. loss: {:.2f}".format(scores['Train_loss'].mean(), scores['Test_loss'].mean()))
 ```
@@ -947,9 +949,9 @@ print("Train loss: {:.2f}. Dev. loss: {:.2f}".format(scores['Train_loss'].mean()
 
 <a class="anchor" id="improve"></a> The train and dev accuracy increased
 to 37.83% and 25.79%, respectively. We can note that we still have an
-underfitting problem (high bias, about 62.17% from 100%), *however, our
+underfitting problem (high bias, about 62.17% from 100%), _however, our
 variance has increased dramatically between 2 epochs and 5 by about 80%
-(12.04% variance)\!* Not only do **we have high bias, but our model also
+(12.04% variance)\!_ Not only do **we have high bias, but our model also
 exhibits high variance**. In order to tackle this, we'll need to address
 the high bias first (get as close to Bayes error as possible) and then
 deal with the resulting high variance. Note that ALL of the steps below
@@ -957,6 +959,7 @@ should be performed with LOGO cross-validation. This way, we can be sure
 our estimates of the dev set are in line with the holdout set.
 
 In order to tackle **high bias**, we can do any of the following:
+
 <li>run more epochs</li> <li>increase the batch size (up to number of
 examples)</li> <li>make a deeper network</li> <li>increases the image
 size from 64x64 to 128x128, 256x256, etc.</li> <li>GridSearching over
@@ -975,9 +978,9 @@ variance will increase.
 
 <div class="cell code" data-execution_count="75">
 
-``` python
+```python
 scores = LOGO(X_train, Y_train, group = driver_imgs_df['subject'],
-              model_name = ResNet50, input_shape = (64, 64, 3), classes = 10, 
+              model_name = ResNet50, input_shape = (64, 64, 3), classes = 10,
               init = glorot_uniform(seed=0), optimizer = 'adam', metrics = 'accuracy',
               epochs = 10, batch_size = 32)
 ```
@@ -986,7 +989,7 @@ scores = LOGO(X_train, Y_train, group = driver_imgs_df['subject'],
 
 <div class="cell code" data-execution_count="76">
 
-``` python
+```python
 print("Train acc: {:.2f}. Dev. acc: {:.2f}".format(scores['Train_acc'].mean(), scores['Test_acc'].mean()))
 print("Train loss: {:.2f}. Dev. loss: {:.2f}".format(scores['Train_loss'].mean(), scores['Test_loss'].mean()))
 ```
@@ -1013,6 +1016,7 @@ can use the steps below to reduce the variance.
 <div class="cell markdown">
 
 In order to tackle **high variance**, we can do any of the following:
+
 <li>Augment images to increase sample size</li> <li>Regularization</li>
 <li>GridSearching over params (batch size, epoch, optimizer and it's
 parameters, initializer)</li> <li>Decrease dev set size (allows more
@@ -1110,7 +1114,7 @@ examples to be trained, making model less prone to overfitting)</li>
 
 <div class="cell markdown">
 
-### Predictions on the Holdout Set 
+### Predictions on the Holdout Set
 
 </div>
 
@@ -1122,7 +1126,7 @@ We'll go ahead and fit the 10 epoch model.
 
 <div class="cell code" data-execution_count="87">
 
-``` python
+```python
 model = ResNet50(input_shape = (64, 64, 3), classes = 10)
 model.compile(optimizer = 'adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 model.fit(X_train, Y_train, epochs = 10, batch_size = 32)
@@ -1163,7 +1167,7 @@ model.fit(X_train, Y_train, epochs = 10, batch_size = 32)
 
 <div class="cell code" data-execution_count="88">
 
-``` python
+```python
 save_model(model, 'e10.h5');
 ```
 
@@ -1171,7 +1175,7 @@ save_model(model, 'e10.h5');
 
 <div class="cell code" data-execution_count="10">
 
-``` python
+```python
 model = load_model('e10.h5')
 ```
 
@@ -1179,14 +1183,14 @@ model = load_model('e10.h5')
 
 <div class="cell markdown">
 
-Let's load the holdout data set from out 'test\_file\_names' csv file
+Let's load the holdout data set from out 'test_file_names' csv file
 and then create the necessary array.
 
 </div>
 
 <div class="cell code">
 
-``` python
+```python
 holdout_imgs_df = pd.read_csv('test_file_names.csv')
 holdout_imgs_df.rename(columns={"imagename": "img"}, inplace = True)
 ```
@@ -1195,7 +1199,7 @@ holdout_imgs_df.rename(columns={"imagename": "img"}, inplace = True)
 
 <div class="cell code">
 
-``` python
+```python
 CreateImgArray(64, 64, 3, holdout_imgs_df, 'test')
 ```
 
@@ -1210,7 +1214,7 @@ repeatedly.
 
 <div class="cell code" data-execution_count="11">
 
-``` python
+```python
 X_holdout = np.load('X_test_64_64.npy')
 X_holdout.shape
 ```
@@ -1232,7 +1236,7 @@ SURE to clear the memory before this step\!
 
 <div class="cell code" data-execution_count="12">
 
-``` python
+```python
 probabilities = model.predict(X_holdout, batch_size = 32)
 ```
 
@@ -1241,13 +1245,13 @@ probabilities = model.predict(X_holdout, batch_size = 32)
 <div class="cell markdown">
 
 If desired (as a sanity check) we can visually check our predictions by
-scaling the X\_holdout array and then printing the image.
+scaling the X_holdout array and then printing the image.
 
 </div>
 
 <div class="cell code" data-execution_count="15">
 
-``` python
+```python
 X_holdout_scaled = Rescale(X_holdout)
 ```
 
@@ -1255,7 +1259,7 @@ X_holdout_scaled = Rescale(X_holdout)
 
 <div class="cell code" data-execution_count="29">
 
-``` python
+```python
 index = 50000
 PrintImage(X_holdout_scaled, index = index, Y = probabilities)
 print('y_pred = ' + str(probabilities[index].argmax()))
@@ -1268,6 +1272,4 @@ print('y_pred = ' + str(probabilities[index].argmax()))
 
 </div>
 
-
 </div>
-
